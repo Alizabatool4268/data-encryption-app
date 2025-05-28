@@ -1,12 +1,6 @@
 import streamlit as st
 from cryptography.fernet import Fernet
 
-# objectives 
-# user sign up
-# login user should be authrized 
-#fill in data , data should be stord in stored data object
-# decrpt data ask for password if given password is correct show data 
-# 3 attempts
 st.set_page_config(page_icon="📝" ,layout="wide",page_title="DataEncryption")
 st.title("SECURE DATA ENCRYPTION APP✨📔")
 
@@ -108,4 +102,34 @@ if choices == "ENCRYPT DATA":
     else:
         st.error("⚠️ You are not logged in. Please log in to encrypt your data.")
     
-    
+if choices == "DECRYPT DATA":
+    if st.session_state.is_authorized == True:
+        def decrypt_data (retrive_pass):
+            data = stored_Data.get("Encrypted_Data")
+            password = stored_Data.get("Data_password")
+            decrypt_stored_data= cipher.decrypt(data.encode()).decode()
+            decrypt_stored_password = cipher.decrypt(password.encode()).decode()
+            attempts = 1
+            if "attempts" not in st.session_state:
+                st.session_state.attempts = 1
+        
+            if decrypt_stored_password == retrive_pass:
+                st.write("Your saved data is")
+                st.write(f"{decrypt_stored_data}")
+                st.session_state.attempts = 1
+            else:
+                st.session_state.attempts +=1
+                if st.session_state.attempts >3:
+                    st.session_state.is_authorized = False
+                    st.error("⚠️Too many failed attempts Verify its you again")
+                else:
+                    st.warning(f"Wrong password you have attempts remaining \n{4-st.session_state.attempts}")
+
+        retrieve_pass_input = st.text_input("Enter your Encrption password to get data",type="password")     
+        if st.button("Decrypt data"):
+            if not retrieve_pass_input.strip():
+                st.warning("This field is required")
+            else:
+                decrypt_data(retrieve_pass_input)    
+    else:
+        st.error("⚠️Looks like you are not logged in")        
